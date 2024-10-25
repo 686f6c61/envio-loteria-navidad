@@ -1,17 +1,17 @@
-# Gestor de Lotería de Navidad y El Niño
+# 🎟️ Gestor de Lotería de Navidad y El Niño
 
-## Descripción del Proyecto
+## 📝 Descripción del Proyecto
 
-Este proyecto es un gestor de participaciones para la Lotería de Navidad y El Niño. Permite a los usuarios crear y gestionar participaciones de lotería, enviar correos electrónicos a los participantes con sus detalles de participación, y generar PDFs con resúmenes de las participaciones.
+Este proyecto es un gestor de participaciones para la Lotería de Navidad y El Niño. Permite a los usuarios crear y administrar participaciones de lotería, enviar correos electrónicos a los participantes con sus detalles de participación 📧, y generar PDFs con resúmenes de las participaciones 📄.
 
-## Tecnologías Utilizadas
+## 🛠️ Tecnologías Utilizadas
 
 - **Backend**: Python con Flask
 - **Frontend**: HTML, CSS, JavaScript
 - **Generación de PDFs**: ReportLab
 - **Envío de Correos**: Flask-Mail
 
-## Dependencias
+## 📦 Dependencias
 
 Las principales dependencias del proyecto son:
 
@@ -26,7 +26,7 @@ Para instalar todas las dependencias, ejecuta:
 pip install -r requirements.txt
 
 
-## Configuración del Entorno
+## ⚙️ Configuración del Entorno
 
 El proyecto utiliza variables de entorno para la configuración. Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
 
@@ -40,11 +40,11 @@ El proyecto utiliza variables de entorno para la configuración. Crea un archivo
 
 Asegúrate de reemplazar los valores con tu configuración real de correo electrónico.
 
-## Base de Datos
+## 🗄️ Base de Datos
 
 Este proyecto no utiliza una base de datos persistente. Todos los datos se manejan en memoria durante la ejecución de la aplicación.
 
-## Cómo Ejecutar el Proyecto
+## 🚀 Cómo Ejecutar el Proyecto
 
 1. Clona el repositorio
 2. Instala las dependencias: `pip install -r requirements.txt`
@@ -53,14 +53,14 @@ Este proyecto no utiliza una base de datos persistente. Todos los datos se manej
 
 La aplicación estará disponible en `http://localhost:5000`.
 
-## Estructura del Proyecto
+## 📂 Estructura del Proyecto
 
 - `app.py`: Contiene la lógica principal del backend
 - `templates/`: Directorio con las plantillas HTML
 - `static/`: Directorio con archivos estáticos (CSS, JavaScript)
 - `requirements.txt`: Lista de dependencias del proyecto
 
-## Contribuciones
+## 🤝 Contribuciones
 
 ¡Las contribuciones son bienvenidas! Si deseas contribuir al proyecto:
 
@@ -72,10 +72,10 @@ La aplicación estará disponible en `http://localhost:5000`.
 
 Por favor, asegúrate de actualizar las pruebas según corresponda y de seguir el estilo de código existente.
 
-## Licencia
+## 📄 Licencia
 
 Este proyecto está bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
 
-## Contacto
+## 📬 Contacto
 
 Si tienes alguna pregunta o sugerencia, no dudes en abrir un issue en este repositorio.

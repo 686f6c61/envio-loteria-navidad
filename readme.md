@@ -30,12 +30,12 @@ pip install -r requirements.txt
 
 El proyecto utiliza variables de entorno para la configuración. Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
 
-MAIL_SERVER=tu_servidor_smtp
-MAIL_PORT=tu_puerto_smtp
-MAIL_USE_TLS=True
-MAIL_USERNAME=tu_usuario_de_correo
-MAIL_PASSWORD=tu_contraseña_de_correo
-MAIL_DEFAULT_SENDER=correo_remitente_por_defecto
+- `MAIL_SERVER=tu_servidor_smtp`
+- `MAIL_PORT=tu_puerto_smtp`
+- `MAIL_USE_TLS=True`
+- `MAIL_USERNAME=tu_usuario_de_correo`
+- `MAIL_PASSWORD=tu_contraseña_de_correo`
+- `MAIL_DEFAULT_SENDER=correo_remitente_por_defecto`
 
 
 Asegúrate de reemplazar los valores con tu configuración real de correo electrónico.

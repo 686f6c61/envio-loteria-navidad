@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block title %}Gestor de Lotería de Navidad{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h1>
+            <i class="fas fa-ticket-alt me-2"></i>
+            Gestor de Lotería de Navidad
+        </h1>
+
+        <!-- Selector de Lotería -->
+        <div class="lottery-selector-section mb-4">
+            <h3>
+                <i class="fas fa-ticket-alt me-2"></i>
+                Seleccionar Lotería
+            </h3>
+            <div class="lottery-options">
+                <label class="lottery-option">
+                    <input type="radio" name="lotteryType" value="navidad2024" required>
+                    <span class="lottery-card">
+                        <i class="fas fa-tree"></i>
+                        <span>Lotería de Navidad 2024</span>
+                    </span>
+                </label>
+                <label class="lottery-option">
+                    <input type="radio" name="lotteryType" value="nino2025" required>
+                    <span class="lottery-card">
+                        <i class="fas fa-baby"></i>
+                        <span>Lotería del Niño 2025</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Formulario de datos de la participación de lotería -->
+        <div class="lottery-participation-section mb-4">
+            <h3>
+                <i class="fas fa-ticket-alt me-2"></i>
+                Datos de la Participación de Lotería
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <form id="ticketForm">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="ticketNumber" class="form-label">
+                                    <i class="fas fa-hashtag me-2"></i>
+                                    Número
+                                </label>
+                                <input type="text" class="form-control" id="ticketNumber" required
+                                       pattern="[0-9]{1,5}" maxlength="5"
+                                       title="Ingrese un número de 1 a 5 dígitos (00000-99999)">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="ticketAmount" class="form-label">
+                                    <i class="fas fa-euro-sign me-2"></i>
+                                    Importe
+                                </label>
+                                <input type="number" class="form-control" id="ticketAmount" required
+                                       min="0" step="0.01"
+                                       title="Ingrese el importe (puede incluir decimales)">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="ticketFraction" class="form-label">
+                                    <i class="fas fa-puzzle-piece me-2"></i>
+                                    Fracción
+                                </label>
+                                <input type="number" class="form-control" id="ticketFraction"
+                                       min="1" max="99" step="1"
+                                       title="Ingrese un número entre 1 y 99">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="ticketSeries" class="form-label">
+                                    <i class="fas fa-list-ol me-2"></i>
+                                    Serie
+                                </label>
+                                <input type="text" class="form-control" id="ticketSeries"
+                                       pattern="[0-9]{1,3}" maxlength="3"
+                                       title="Ingrese un número de 1 a 3 dígitos (0-999)">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview de los datos -->
+        <div id="ticketPreview" class="ticket-data mt-4" style="display: none;">
+            <div class="ticket-number" id="previewNumber"></div>
+            <div class="ticket-info">
+                <div class="ticket-info-item">
+                    <div class="ticket-info-label">Importe</div>
+                    <div class="ticket-info-value" id="previewAmount"></div>
+                </div>
+                <div class="ticket-info-item">
+                    <div class="ticket-info-label">Fracción</div>
+                    <div class="ticket-info-value" id="previewFraction"></div>
+                </div>
+                <div class="ticket-info-item">
+                    <div class="ticket-info-label">Serie</div>
+                    <div class="ticket-info-value" id="previewSeries"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Config Section -->
+        <div class="email-config-section fade-in">
+            <h3>
+                <i class="fas fa-envelope me-2"></i>
+                Datos del Remitente
+            </h3>
+            
+            <!-- Nombre del remitente -->
+            <div class="form-group mb-4">
+                <label for="senderName" class="form-label">
+                    <i class="fas fa-user me-2"></i>
+                    Nombre del Remitente
+                </label>
+                <input type="text" 
+                       class="form-control" 
+                       id="senderName" 
+                       placeholder="Nombre Completo"
+                       required>
+            </div>
+
+            <!-- DNI del remitente -->
+            <div class="form-group mb-4">
+                <label for="senderDNI" class="form-label">
+                    <i class="fas fa-id-card me-2"></i>
+                    DNI del Remitente
+                </label>
+                <input type="text" 
+                       class="form-control" 
+                       id="senderDNI" 
+                       placeholder="12345678A"
+                       pattern="[0-9]{8}[A-Za-z]{1}"
+                       required>
+            </div>
+
+            <!-- Email del remitente -->
+            <div class="form-group mb-4">
+                <label for="senderEmail" class="form-label">
+                    <i class="fas fa-at me-2"></i>
+                    Email del Remitente
+                </label>
+                <input type="email" 
+                       class="form-control" 
+                       id="senderEmail" 
+                       placeholder="remitente@email.com"
+                       required>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Este email se usará para enviar los correos a los participantes
+                </small>
+            </div>
+
+            <!-- Template del correo -->
+            <div class="email-template-section mt-4">
+                <label class="form-label">
+                    <i class="fas fa-pencil-alt me-2"></i>
+                    Mensaje del Correo
+                </label>
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="emailSubject" class="form-label">
+                                <i class="fas fa-heading me-2"></i>
+                                Asunto del Correo
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="emailSubject" 
+                                   placeholder="Asunto del correo"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emailBody" class="form-label">
+                                <i class="fas fa-align-left me-2"></i>
+                                Cuerpo del mensaje
+                            </label>
+                            <div class="template-help mb-2">
+                                <small class="text-muted">
+                                    Puedes usar las siguientes variables:
+                                    <span class="badge bg-secondary me-1">{nombre}</span>
+                                    <span class="badge bg-secondary me-1">{porcentaje}</span>
+                                    <span class="badge bg-secondary me-1">{numero_decimo}</span>
+                                    <span class="badge bg-secondary">{importe}</span>
+                                </small>
+                            </div>
+                            <textarea class="form-control" 
+                                      id="emailBody" 
+                                      rows="6" 
+                                      required
+                                      style="resize: vertical;"
+                            >Estimado/a {nombre}:
+
+Me complace confirmar tu participación en la Lotería de Navidad 2024.
+
+Tu participación corresponde al {porcentaje}% del décimo número {numero_decimo}, con un importe de {importe}€.
+
+Adjunto encontrarás un PDF con todos los detalles de la participación.
+
+¡Mucha suerte!
+
+Un cordial saludo.</textarea>
+                        </div>
+
+                        <div class="template-preview mt-3">
+                            <button class="btn btn-outline-primary btn-sm" onclick="previewEmail()">
+                                <i class="fas fa-eye me-2"></i>
+                                Vista Previa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Formulario de participantes -->
+        <h3>
+            <i class="fas fa-users me-2"></i>
+            Añadir Participante
+        </h3>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Añadir Participante</h5>
+            </div>
+            <div class="card-body">
+                <form id="participantForm" onsubmit="addParticipant(event)">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="name" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dni" class="form-label">DNI (opcional)</label>
+                            <input type="text" class="form-control" id="dni">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="percentage" class="form-label">Porcentaje</label>
+                            <input type="number" class="form-control" id="percentage" required>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i> Añadir
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="total-info">
+            <label class="percentage-label">
+                <i class="fas fa-chart-pie me-2"></i>
+                Porcentaje Total Asignado:
+            </label>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%;" 
+                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            </div>
+        </div>
+
+        <h3 class="mt-4">
+            <i class="fas fa-list me-2"></i>
+            Participantes Actuales
+        </h3>
+        <div class="participants-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>DNI</th>
+                        <th>Email</th>
+                        <th>Porcentaje</th>
+                        <th>Acciones</th>
+                        <th>Hash</th>
+                    </tr>
+                </thead>
+                <tbody id="participantsList">
+                    <!-- Los participantes se añadirán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mt-4">
+            <button id="sendEmailButton" class="btn btn-primary btn-lg">
+                <i class="fas fa-clover me-1"></i><i class="fas fa-envelope me-1"></i> Repartir Suerte: Enviar Mail
+            </button>
+        </div>
+
+        <div class="text-center mt-3">
+            <button id="downloadSummaryButton" class="btn btn-secondary" style="display: none;" onclick="downloadSummaryPDF()">
+                <i class="fas fa-file-pdf me-1"></i> Descargar Resumen de Participaciones
+            </button>
+        </div>
+
+        <div id="pdfInfo" class="mt-3 text-center" style="display: none;">
+            <p class="mb-2">
+                <i class="fas fa-check-circle me-2"></i>
+                Los correos han sido enviados correctamente.
+            </p>
+            <button id="downloadPdfButton" class="btn btn-outline-primary" onclick="downloadPDF()">
+                <i class="fas fa-download me-2"></i>
+                Descargar PDF
+            </button>
+        </div>
+
+        <!-- Modal de Vista Previa -->
+        <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Vista Previa del Email</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="previewContent">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="alertContainer" class="mt-3" style="display: none;"></div>
+        <div id="loadingIndicator" class="text-center mt-3" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Enviando correos, por favor espere...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Ayuda - Gestor de Lotería{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-question-circle me-2"></i>Ayuda y Acerca de</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-info-circle me-2"></i>Acerca de este Proyecto</h3>
+        <p class="card-text">
+            Esta aplicación web es un proyecto educativo desarrollado con fines de aprendizaje y demostración. 
+            No está destinada para uso en producción o para manejar datos reales de lotería. Puede contener errores 
+            o imprecisiones y no debe ser utilizada para transacciones reales o manejo de información sensible.
+        </p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-cogs me-2"></i>Funcionamiento de la Aplicación</h3>
+        <ol>
+            <li><strong>Selección de Lotería:</strong> Elige el tipo de lotería para la participación.</li>
+            <li><strong>Datos del Remitente:</strong> Ingresa la información del organizador de la participación.</li>
+            <li><strong>Datos del Décimo:</strong> Introduce los detalles del décimo de lotería.</li>
+            <li><strong>Añadir Participantes:</strong> Agrega la información de cada participante y su porcentaje de participación.</li>
+            <li><strong>Envío de Correos:</strong> Al finalizar, la aplicación enviará correos electrónicos a cada participante con su información de participación.</li>
+            <li><strong>Resumen:</strong> Se genera un resumen para el organizador con todos los detalles de la participación.</li>
+        </ol>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-database me-2"></i>Manejo de Datos</h3>
+        <p class="card-text">
+            Esta aplicación no almacena permanentemente ningún dato ingresado por los usuarios. 
+            La información se utiliza únicamente para generar los PDFs y enviar los correos electrónicos. 
+            Una vez completado el proceso, los datos se eliminan de nuestros sistemas.
+        </p>
+        <p class="card-text">
+            Los únicos datos que podrían quedar registrados son los logs del servidor SMTP (SMTP2GO) 
+            utilizados para el envío de correos, que están fuera de nuestro control directo.
+        </p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-exclamation-triangle me-2"></i>Descargo de Responsabilidad</h3>
+        <p class="card-text">
+            Este es un proyecto educativo y no debe ser utilizado para manejar participaciones reales de lotería 
+            o información financiera sensible. Los desarrolladores no se hacen responsables de cualquier uso 
+            indebido o consecuencias derivadas del uso de esta aplicación.
+        </p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-envelope me-2"></i>Contacto</h3>
+        <p class="card-text">
+            Para cualquier pregunta o comentario sobre este proyecto educativo, por favor contacta a:
+            <a href="https://x.com/hex686f6c61" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-x-twitter me-1"></i>@hex686f6c61
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

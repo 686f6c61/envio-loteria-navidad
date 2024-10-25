@@ -1,4 +1,5 @@
 Flask==2.3.2
 Flask-Mail==0.9.1
-Werkzeug==2.3.3
-
+reportlab==3.6.12
+gunicorn==20.1.0
+python-dotenv==1.0.0

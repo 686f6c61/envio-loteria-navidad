@@ -116,6 +116,8 @@ function previewEmail() {
     const senderName = document.getElementById('senderName').value || '[Nombre del Remitente]';
     const ticketNumber = document.getElementById('ticketNumber').value || '[Número del Décimo]';
     const ticketAmount = document.getElementById('ticketAmount').value || '[Importe]';
+    const ticketFraction = document.getElementById('ticketFraction').value || '[Fracción]';
+    const ticketSeries = document.getElementById('ticketSeries').value || '[Serie]';
     
     const subject = document.getElementById('emailSubject').value;
     let body = document.getElementById('emailBody').value;
@@ -123,7 +125,9 @@ function previewEmail() {
     body = body.replace(/{nombre}/g, '[Nombre del Participante]')
                .replace(/{porcentaje}/g, '[Porcentaje]')
                .replace(/{numero_decimo}/g, ticketNumber)
-               .replace(/{importe}/g, ticketAmount);
+               .replace(/{importe}/g, ticketAmount)
+               .replace(/{fraccion}/g, ticketFraction)
+               .replace(/{serie}/g, ticketSeries);
 
     const previewContent = `
         <strong>De:</strong> ${senderName}<br>
@@ -164,6 +168,8 @@ function validateAndSubmit() {
         subject: document.getElementById('emailSubject').value.trim(),
         ticketNumber: document.getElementById('ticketNumber').value.trim(),
         ticketAmount: document.getElementById('ticketAmount').value.trim(),
+        ticketFraction: document.getElementById('ticketFraction').value.trim(),
+        ticketSeries: document.getElementById('ticketSeries').value.trim(),
         lotteryType: selectedLottery,
         participants: participants
     };

@@ -9,24 +9,29 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 import hashlib
+import os
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 # Configuración de Flask-Mail
-app.config['MAIL_SERVER'] = 'mail.smtp2go.com'
-app.config['MAIL_PORT'] = 2525
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'the00b@inspi.me'
-app.config['MAIL_PASSWORD'] = 'RT3VfHaRVJ5nFO4g'
-app.config['MAIL_DEFAULT_SENDER'] = 'the00b@inspi.me'
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
 mail = Mail(app)
 
 def generate_hash(data):
     return hashlib.sha256(data.encode()).hexdigest()[:25]
 
-def create_pdf(participant_name, percentage, ticket_number, amount, sender_name, sender_dni, sender_email, lottery_type, unique_hash):
+def create_pdf(participant_name, percentage, ticket_number, amount, fraction, series, sender_name, sender_dni, sender_email, lottery_type, unique_hash):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter,
                             rightMargin=72, leftMargin=72,
@@ -51,6 +56,8 @@ def create_pdf(participant_name, percentage, ticket_number, amount, sender_name,
     Story.append(Paragraph(f"Tipo de Lotería: {lottery_type}", styles['Normal']))
     Story.append(Paragraph(f"Número del décimo: {ticket_number}", styles['Normal']))
     Story.append(Paragraph(f"Importe: {amount}€", styles['Normal']))
+    Story.append(Paragraph(f"Fracción: {fraction}", styles['Normal']))
+    Story.append(Paragraph(f"Serie: {series}", styles['Normal']))
     Story.append(Spacer(1, 0.25*inch))
     
     # Datos del remitente
@@ -87,6 +94,8 @@ def create_admin_summary_pdf(participants_data, lottery_data, sender_data):
     Story.append(Paragraph(f"Tipo: {lottery_data['type']}", styles['Normal']))
     Story.append(Paragraph(f"Número del décimo: {lottery_data['ticket_number']}", styles['Normal']))
     Story.append(Paragraph(f"Importe total: {lottery_data['amount']}€", styles['Normal']))
+    Story.append(Paragraph(f"Fracción: {lottery_data['fraction']}", styles['Normal']))
+    Story.append(Paragraph(f"Serie: {lottery_data['series']}", styles['Normal']))
     Story.append(Spacer(1, 0.25*inch))
     
     # Datos del remitente
@@ -144,6 +153,8 @@ def send_email():
 
         ticket_number = data['ticketNumber']
         ticket_amount = data['ticketAmount']
+        ticket_fraction = data['ticketFraction']
+        ticket_series = data['ticketSeries']
         lottery_type = data['lotteryType']
 
         participants_summary = []
@@ -172,27 +183,31 @@ def send_email():
 
             # Crear PDF para el participante
             pdf = create_pdf(name, percentage, ticket_number, ticket_amount, 
+                             ticket_fraction, ticket_series, 
                              data['senderName'], data['senderDNI'], data['senderEmail'], 
                              lottery_type, unique_hash)
 
             # Enviar correo al participante
-            msg = Message(subject=data['subject'],
+            subject = data['subject'].replace('{numero_decimo}', ticket_number)
+            msg = Message(subject=subject,
                           recipients=[email],
                           sender=app.config['MAIL_DEFAULT_SENDER'])
             
-            msg.body = f"""Hola {name}:
-
-Me complace confirmar tu participación en la {lottery_type}.
-
-Tu participación corresponde al {percentage}% del décimo número {ticket_number}, con un importe de {ticket_amount}€.
-
-Hash único de tu participación: {unique_hash}
-
-Adjunto encontrarás un PDF con todos los detalles de la participación.
-
-¡Mucha suerte!
-
-Un cordial saludo."""
+            lottery_name = "Lotería de Navidad 2024" if lottery_type == "navidad2024" else "Lotería del Niño 2025"
+            
+            msg.body = f"""Hola, {name}:
+ 
+ Este mail es para confirmar tu participación en la {lottery_name}.
+ 
+ Tu participación corresponde al {percentage}% del décimo número {ticket_number}, con un importe de {ticket_amount}€.
+ Fracción: {ticket_fraction}
+ Serie: {ticket_series}
+ 
+ Adjunto encontrarás un PDF con todos los detalles de la participación. Recuerda que esto es solo un recordatorio de {data['senderName']} y puede que no tenga ninguna validez legal.
+ 
+ ¡Mucha suerte!
+ 
+ Un saludo."""
 
             msg.attach("participacion_loteria.pdf", "application/pdf", pdf.getvalue())
             mail.send(msg)
@@ -213,7 +228,9 @@ Un cordial saludo."""
             'lottery_data': {
                 'type': lottery_type,
                 'ticket_number': ticket_number,
-                'amount': ticket_amount
+                'amount': ticket_amount,
+                'fraction': ticket_fraction,
+                'series': ticket_series
             },
             'sender_data': {
                 'name': data['senderName'],
@@ -250,8 +267,9 @@ def download_pdf(hash):
     data = participant_data[hash]
     
     pdf = create_pdf(data['name'], data['percentage'], data['ticket_number'], 
-                     data['ticket_amount'], data['sender_name'], data['sender_dni'], 
-                     data['sender_email'], data['lottery_type'], hash)
+                     data['ticket_amount'], data['ticket_fraction'], data['ticket_series'], 
+                     data['sender_name'], data['sender_dni'], data['sender_email'], 
+                     data['lottery_type'], hash)
     
     return send_file(pdf,
                      download_name=f'participacion_{hash}.pdf',
@@ -281,6 +299,11 @@ def download_summary_pdf():
     except Exception as e:
         app.logger.error(f"Error al generar el PDF de resumen: {str(e)}", exc_info=True)
         abort(500, description="Error al generar el PDF de resumen")
+
+@app.route('/ayuda')
+def ayuda():
+    print("Accediendo a la página de ayuda")  # Añade esta línea
+    return render_template('ayuda.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

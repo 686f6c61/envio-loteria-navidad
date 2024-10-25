@@ -6,15 +6,13 @@
 <div class="card shadow-sm">
     <div class="card-body">
         <h1>
-            <i class="fas fa-ticket-alt me-2"></i>
-            Gestor de Lotería de Navidad
+            Gestor de participaciones de la Loteria de Navidad y el Niño
         </h1>
 
         <!-- Selector de Lotería -->
         <div class="lottery-selector-section mb-4">
             <h3>
-                <i class="fas fa-ticket-alt me-2"></i>
-                Seleccionar Lotería
+                Seleccionar juego
             </h3>
             <div class="lottery-options">
                 <label class="lottery-option">
@@ -37,8 +35,7 @@
         <!-- Formulario de datos de la participación de lotería -->
         <div class="lottery-participation-section mb-4">
             <h3>
-                <i class="fas fa-ticket-alt me-2"></i>
-                Datos de la Participación de Lotería
+                <i class="fas fa-ticket-alt me-2"></i>Datos de la Participación de Lotería
             </h3>
             <div class="card">
                 <div class="card-body">
@@ -125,18 +122,22 @@
                        required>
             </div>
 
-            <!-- DNI del remitente -->
+            <!-- DNI del remitente o CIF Comercial -->
             <div class="form-group mb-4">
                 <label for="senderDNI" class="form-label">
                     <i class="fas fa-id-card me-2"></i>
-                    DNI del Remitente
+                    DNI del Remitente o CIF Comercial
                 </label>
                 <input type="text" 
                        class="form-control" 
                        id="senderDNI" 
-                       placeholder="12345678A"
-                       pattern="[0-9]{8}[A-Za-z]{1}"
+                       placeholder="12345678A o B12345678"
+                       pattern="([0-9]{8}[A-Za-z]{1}|[A-Za-z]{1}[0-9]{8})"
                        required>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Ingrese un DNI (8 números y 1 letra) o un CIF (1 letra y 8 números)
+                </small>
             </div>
 
             <!-- Email del remitente -->
@@ -172,8 +173,12 @@
                             <input type="text" 
                                    class="form-control" 
                                    id="emailSubject" 
-                                   placeholder="Asunto del correo"
+                                   value="🍀 Participación de Lotería {numero_decimo}"
                                    required>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                El número del décimo se insertará automáticamente en {numero_decimo}
+                            </small>
                         </div>
                         <div class="form-group">
                             <label for="emailBody" class="form-label">
@@ -186,25 +191,28 @@
                                     <span class="badge bg-secondary me-1">{nombre}</span>
                                     <span class="badge bg-secondary me-1">{porcentaje}</span>
                                     <span class="badge bg-secondary me-1">{numero_decimo}</span>
-                                    <span class="badge bg-secondary">{importe}</span>
+                                    <span class="badge bg-secondary me-1">{importe}</span>
+                                    <span class="badge bg-secondary">{loteria}</span>
                                 </small>
                             </div>
                             <textarea class="form-control" 
                                       id="emailBody" 
-                                      rows="6" 
+                                      rows="10" 
                                       required
                                       style="resize: vertical;"
-                            >Estimado/a {nombre}:
+                            >Hola {nombre}:
 
-Me complace confirmar tu participación en la Lotería de Navidad 2024.
+Este mail es para confirmar tu participación en la {loteria}.
 
 Tu participación corresponde al {porcentaje}% del décimo número {numero_decimo}, con un importe de {importe}€.
+Fracción: {fraccion}
+Serie: {serie}
 
-Adjunto encontrarás un PDF con todos los detalles de la participación.
+Adjunto encontrarás un PDF con todos los detalles de la participación. Recuerda que esto es solo un recordatorio de {remitente} y puede que no tenga ninguna validez legal.
 
 ¡Mucha suerte!
 
-Un cordial saludo.</textarea>
+Un saludo.</textarea>
                         </div>
 
                         <div class="template-preview mt-3">
@@ -293,7 +301,7 @@ Un cordial saludo.</textarea>
 
         <div class="text-center mt-4">
             <button id="sendEmailButton" class="btn btn-primary btn-lg">
-                <i class="fas fa-clover me-1"></i><i class="fas fa-envelope me-1"></i> Repartir Suerte: Enviar Mail
+                <i class="fas fa-envelope me-2"></i>Enviar participaciones, ¡Suerte!
             </button>
         </div>
 
@@ -338,6 +346,10 @@ Un cordial saludo.</textarea>
     </div>
 </div>
 {% endblock %}
+
+
+
+
 
 
 

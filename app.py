@@ -12,13 +12,14 @@ import hashlib
 import os
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
+# Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
+# Inicializar la aplicación Flask
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-# Configuración de Flask-Mail
+# Configuración de Flask-Mail usando variables de entorno
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
@@ -26,12 +27,15 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
+# Inicializar Flask-Mail
 mail = Mail(app)
 
 def generate_hash(data):
+    """Genera un hash único para identificar cada participación"""
     return hashlib.sha256(data.encode()).hexdigest()[:25]
 
 def create_pdf(participant_name, percentage, ticket_number, amount, fraction, series, sender_name, sender_dni, sender_email, lottery_type, unique_hash):
+    """Crea un PDF con los detalles de la participación de lotería"""
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter,
                             rightMargin=72, leftMargin=72,
@@ -42,7 +46,7 @@ def create_pdf(participant_name, percentage, ticket_number, amount, fraction, se
     
     Story = []
     
-    # Título
+    # Añadir contenido al PDF
     Story.append(Paragraph("Participación de Lotería", styles['Heading1']))
     Story.append(Spacer(1, 0.25*inch))
     
@@ -75,6 +79,7 @@ def create_pdf(participant_name, percentage, ticket_number, amount, fraction, se
     return buffer
 
 def create_admin_summary_pdf(participants_data, lottery_data, sender_data):
+    """Crea un PDF de resumen para el administrador"""
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter,
                             rightMargin=72, leftMargin=72,
@@ -85,7 +90,7 @@ def create_admin_summary_pdf(participants_data, lottery_data, sender_data):
     
     Story = []
     
-    # Título
+    # Añadir contenido al PDF de resumen
     Story.append(Paragraph("Resumen de Participaciones", styles['Heading1']))
     Story.append(Spacer(1, 0.25*inch))
     
@@ -129,28 +134,33 @@ def create_admin_summary_pdf(participants_data, lottery_data, sender_data):
     buffer.seek(0)
     return buffer
 
-# Añade esta variable global para almacenar los datos de los participantes
+# Variables globales para almacenar datos temporales
 participant_data = {}
-
-# Variable global para almacenar los datos del resumen
 summary_data = None
 
 @app.route('/')
 def index():
+    """Ruta principal que renderiza la página de inicio"""
     return render_template('index.html')
 
 @app.route('/send_email', methods=['POST'])
 def send_email():
+    """
+    Ruta para procesar el envío de emails a los participantes
+    y generar el resumen para el administrador
+    """
     global summary_data
     app.logger.info("Recibida petición POST en /send_email")
     try:
         data = request.get_json()
         app.logger.info(f"Datos recibidos: {data}")
         
+        # Validar que hay participantes
         if 'participants' not in data or not data['participants']:
             app.logger.error("No se encontraron participantes en los datos")
             return jsonify({"error": "Se requieren participantes"}), 400
 
+        # Extraer datos del décimo
         ticket_number = data['ticketNumber']
         ticket_amount = data['ticketAmount']
         ticket_fraction = data['ticketFraction']
@@ -159,6 +169,7 @@ def send_email():
 
         participants_summary = []
 
+        # Procesar cada participante
         for participant in data['participants']:
             name = participant['name']
             email = participant['email']
@@ -260,6 +271,7 @@ def send_email():
 
 @app.route('/download_pdf/<hash>', methods=['GET'])
 def download_pdf(hash):
+    """Ruta para descargar el PDF de un participante específico"""
     global participant_data
     if hash not in participant_data:
         abort(404, description="PDF not found")
@@ -278,6 +290,7 @@ def download_pdf(hash):
 
 @app.route('/download_summary_pdf', methods=['GET'])
 def download_summary_pdf():
+    """Ruta para descargar el PDF de resumen del administrador"""
     global summary_data
     if summary_data is None:
         app.logger.error("Intento de descarga de resumen cuando no hay datos disponibles")
@@ -302,7 +315,8 @@ def download_summary_pdf():
 
 @app.route('/ayuda')
 def ayuda():
-    print("Accediendo a la página de ayuda")  # Añade esta línea
+    """Ruta para la página de ayuda"""
+    print("Accediendo a la página de ayuda")
     return render_template('ayuda.html')
 
 if __name__ == '__main__':

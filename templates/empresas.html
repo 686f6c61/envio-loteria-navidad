@@ -1,0 +1,911 @@
+{% extends "base.html" %}
+
+{% block title %}Gestor de participaciones de azar - Empresas{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h1>
+            Gestor de participaciones de azar - Empresas
+        </h1>
+        
+        <div class="alert alert-info mb-4">
+            <p class="mb-0"><i class="fas fa-info-circle me-2"></i>Esta herramienta permite a empresas gestionar participaciones para múltiples personas mediante la carga de un archivo CSV. Selecciona el tipo de juego, completa los datos del boleto, carga la lista de participantes y personaliza el mensaje antes de enviar.</p>
+        </div>
+
+        <!-- Selector de Lotería -->
+        <div class="lottery-selector-section mb-4">
+            <h3>
+                Seleccionar juego
+            </h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <select class="form-select form-select-sm" id="lotteryTypeSelect" onchange="handleLotteryTypeChange()">
+                            <option value="" disabled selected>-- Seleccione un juego --</option>
+                            <optgroup label="LOAE">
+                                <option value="navidad">Lotería de Navidad</option>
+                                <option value="nino">Lotería del Niño</option>
+                                <option value="nacional">Lotería Nacional</option>
+                                <option value="primitiva">La Primitiva</option>
+                                <option value="bonoloto">Bonoloto</option>
+                                <option value="euromillones">Euromillones</option>
+                                <option value="gordo">El Gordo</option>
+                            </optgroup>
+                            <optgroup label="ONCE">
+                                <option value="cuponazo">Cuponazo</option>
+                                <option value="extraordinario">Sorteo Extraordinario</option>
+                                <option value="diario">Cupón Diario</option>
+                                <option value="findesemana">Fin de Semana</option>
+                                <option value="eurojackpot">Eurojackpot</option>
+                            </optgroup>
+                            <option value="otro">Otro juego...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <form id="empresaForm" enctype="multipart/form-data">
+            <!-- Datos de la Empresa -->
+            <div class="empresa-info-section fade-in">
+                <h3>
+                    <i class="fas fa-building me-2"></i>
+                    Datos de la Empresa
+                </h3>
+                
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="companyName" class="form-label small">
+                                <i class="fas fa-building me-1"></i>Nombre de la Empresa
+                            </label>
+                            <input type="text" class="form-control form-control-sm" id="companyName" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="senderName" class="form-label small">
+                                <i class="fas fa-user me-1"></i>Persona que realiza el envío
+                            </label>
+                            <input type="text" class="form-control form-control-sm" id="senderName" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="senderEmail" class="form-label small">
+                                <i class="fas fa-envelope me-1"></i>Email del remitente
+                            </label>
+                            <input type="email" class="form-control form-control-sm" id="senderEmail" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="companyCIF" class="form-label small">
+                                <i class="fas fa-id-card me-1"></i>CIF de la empresa
+                            </label>
+                            <input type="text" class="form-control form-control-sm" id="companyCIF" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-8">
+                        <div class="form-group mb-3">
+                            <label for="companyLogo" class="form-label small">
+                                <i class="fas fa-image me-1"></i>Logo de la empresa (opcional)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <input type="file" class="form-control form-control-sm" id="companyLogo" accept="image/*" style="max-width: 300px;">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" id="clearLogoBtn">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div id="logoPreview" class="text-center" style="display: none;">
+                            <p class="small mb-1">Vista previa:</p>
+                            <img id="logoPreviewImage" src="" alt="Logo de la empresa" style="max-height: 60px; max-width: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datos del Juego -->
+            <div class="ticket-info-section fade-in mt-4">
+                <h3>
+                    <i class="fas fa-ticket-alt me-2"></i>
+                    Datos del Juego
+                </h3>
+
+                <!-- Lotería Nacional, Navidad, Niño -->
+                <div id="loteriaNacional" class="lottery-form">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label for="ticketNumber" class="form-label small">
+                                    <i class="fas fa-hashtag me-1"></i>Número
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="ticketNumber">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label for="ticketAmount" class="form-label small">
+                                    <i class="fas fa-euro-sign me-1"></i>Importe (€)
+                                </label>
+                                <input type="number" class="form-control form-control-sm" id="ticketAmount" min="1" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label for="ticketFraction" class="form-label small">
+                                    <i class="fas fa-divide me-1"></i>Fracción
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="ticketFraction">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label for="ticketSeries" class="form-label small">
+                                    <i class="fas fa-list-ol me-1"></i>Serie
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="ticketSeries">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primitiva, Bonoloto, Euromillones, El Gordo -->
+                <div id="primitiva" class="lottery-form" style="display:none">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="ticketNumbers" class="form-label small">
+                                    <i class="fas fa-hashtag me-1"></i>Números seleccionados (separados por comas)
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="ticketNumbers">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label for="ticketAmountPrimitiva" class="form-label small">
+                                    <i class="fas fa-euro-sign me-1"></i>Importe (€)
+                                </label>
+                                <input type="number" class="form-control form-control-sm" id="ticketAmountPrimitiva" min="1" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="estrellas-container" style="display:none">
+                            <div class="form-group mb-3">
+                                <label for="ticketStars" class="form-label small">
+                                    <i class="fas fa-star me-1"></i>Estrellas (separadas por comas)
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="ticketStars">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ONCE -->
+                <div id="once" class="lottery-form" style="display:none">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="ticketNumberOnce" class="form-label small">
+                                    <i class="fas fa-hashtag me-1"></i>Número del cupón
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="ticketNumberOnce">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="ticketSeriesOnce" class="form-label small">
+                                    <i class="fas fa-list-ol me-1"></i>Serie
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="ticketSeriesOnce">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="ticketAmountOnce" class="form-label small">
+                                    <i class="fas fa-euro-sign me-1"></i>Importe (€)
+                                </label>
+                                <input type="number" class="form-control form-control-sm" id="ticketAmountOnce" min="1" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Otro juego -->
+                <div id="otro" class="lottery-form" style="display:none">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="ticketNumberOtro" class="form-label small">
+                                    <i class="fas fa-hashtag me-1"></i>Identificador/Número
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="ticketNumberOtro">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="ticketAmountOtro" class="form-label small">
+                                    <i class="fas fa-euro-sign me-1"></i>Importe (€)
+                                </label>
+                                <input type="number" class="form-control form-control-sm" id="ticketAmountOtro" min="1" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="ticketDetails" class="form-label small">
+                                    <i class="fas fa-info-circle me-1"></i>Detalles adicionales
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="ticketDetails">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Porcentaje para todos los participantes -->
+            <div class="percentage-section fade-in mt-4">
+                <h3>
+                    <i class="fas fa-percent me-2"></i>
+                    Porcentaje para todos los participantes
+                </h3>
+                <div class="alert alert-info mb-3">
+                    <p class="mb-0"><i class="fas fa-info-circle me-2"></i>El porcentaje total (100%) se reparte a partes iguales entre todos los participantes. Por ejemplo, si el importe es 100€ y hay 5 participantes con el mismo porcentaje, cada uno recibirá 20€.</p>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="defaultPercentage" class="form-label small">
+                                <i class="fas fa-percent me-1"></i>Porcentaje total a repartir (%)
+                            </label>
+                            <input type="number" class="form-control form-control-sm" id="defaultPercentage" min="1" max="100" value="100" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carga de Participantes -->
+            <div class="participants-section fade-in mt-4">
+                <h3>
+                    <i class="fas fa-users me-2"></i>
+                    Carga de Participantes
+                </h3>
+                
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="csvFile" class="form-label small">
+                                <i class="fas fa-file-csv me-1"></i>Archivo CSV
+                            </label>
+                            <input type="file" class="form-control form-control-sm" id="csvFile" accept=".csv">
+                            <small class="text-muted small">
+                                Formato: Nombre, Email, Teléfono (opcional)<br>
+                                <strong>Nota:</strong> El porcentaje se calculará automáticamente dividiendo el porcentaje total entre todos los participantes.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="csvData" class="form-label small">
+                                <i class="fas fa-paste me-1"></i>O pega los datos aquí
+                            </label>
+                            <textarea class="form-control form-control-sm" id="csvData" rows="4" placeholder="Nombre, Email, Teléfono, Porcentaje"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <button type="button" id="loadParticipantsBtn" class="btn btn-sm btn-primary">
+                            <i class="fas fa-upload me-1"></i>Cargar Participantes
+                        </button>
+                        <a href="/static/ejemplo_participantes.csv" class="btn btn-sm btn-outline-secondary ms-2" download>
+                            <i class="fas fa-download me-1"></i>Descargar CSV de ejemplo
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Lista de participantes -->
+                <div class="mt-3">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped table-hover" id="participantsList">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Porcentaje</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Aquí se cargarán los participantes -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuración del Email -->
+            <div class="email-config-section fade-in mt-4">
+                <h3>
+                    <i class="fas fa-envelope me-2"></i>
+                    Configuración del Email
+                </h3>
+                
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="emailSubject" class="form-label small">
+                                <i class="fas fa-heading me-1"></i>Asunto
+                            </label>
+                            <input type="text" 
+                                   class="form-control form-control-sm" 
+                                   id="emailSubject" 
+                                   value="🍀 Participación de Azar {remitente} del juego {loteria}"
+                                   required>
+                            <small class="text-muted small">
+                                Se insertará el nombre del remitente en {remitente} y el tipo de juego en {loteria}
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="emailBody" class="form-label small">
+                                <i class="fas fa-align-left me-1"></i>Mensaje
+                            </label>
+                            <textarea class="form-control form-control-sm" 
+                                      id="emailBody" 
+                                      rows="10" 
+                                      required
+                            >Hola {nombre}:
+
+Este mail es para confirmar tu participación en la {loteria} gestionada por la empresa {empresa}.
+<div id="mensaje-loteria-nacional" class="mensaje-tipo-loteria">
+Tu participación corresponde al {porcentaje}% del décimo número {numero_decimo}, con un importe de {importe}€.
+Fracción: {fraccion}
+Serie: {serie}
+</div><div id="mensaje-primitiva" class="mensaje-tipo-loteria" style="display:none">
+Tu participación corresponde al {porcentaje}% con los números {numero_decimo}, con un importe de {importe}€.
+</div><div id="mensaje-euromillones" class="mensaje-tipo-loteria" style="display:none">
+Tu participación corresponde al {porcentaje}% con los números {numero_decimo}, con un importe de {importe}€.
+Estrellas: {estrellas}
+</div><div id="mensaje-once" class="mensaje-tipo-loteria" style="display:none">
+Tu participación corresponde al {porcentaje}% del cupón número {numero_decimo}, con un importe de {importe}€.
+Serie: {serie}
+</div><div id="mensaje-otro" class="mensaje-tipo-loteria" style="display:none">
+Tu participación corresponde al {porcentaje}% del número/identificador {numero_decimo}, con un importe de {importe}€.
+</div>
+
+Datos de la empresa:
+- Empresa: {empresa}
+- CIF: {empresa_cif}
+- Responsable: {remitente}
+- Email de contacto: {email_remitente}
+
+Adjunto encontrarás un PDF con todos los detalles de la participación. Recuerda que esto es solo un recordatorio y puede que no tenga ninguna validez legal.
+
+¡Mucha suerte!
+
+Un saludo,
+{remitente}</textarea>
+                        </div>
+                        <div class="form-group mt-3">
+                            <button type="button" id="previewBtn" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i>Vista previa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="action-buttons mt-4 text-center">
+                <button type="submit" id="sendEmailBtn" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-1"></i>Enviar Participaciones
+                </button>
+                <button type="reset" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-redo me-1"></i>Reiniciar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Vista Previa -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">Vista previa del email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Aquí se mostrará la vista previa -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Función para cargar participantes desde CSV o texto pegado
+        document.getElementById('loadParticipantsBtn').addEventListener('click', function() {
+            const csvFile = document.getElementById('csvFile').files[0];
+            const csvData = document.getElementById('csvData').value;
+            const defaultPercentage = document.getElementById('defaultPercentage').value || 20;
+            
+            if (!csvFile && !csvData) {
+                alert('Por favor, sube un archivo CSV o pega los datos en el área de texto.');
+                return;
+            }
+            
+            if (csvFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    processCSVData(e.target.result, defaultPercentage);
+                };
+                reader.readAsText(csvFile);
+            } else if (csvData) {
+                processCSVData(csvData, defaultPercentage);
+            }
+        });
+        
+        // Procesar datos CSV
+        function processCSVData(data, defaultPercentage) {
+            const lines = data.split('\n');
+            const tableBody = document.querySelector('#participantsList tbody');
+            tableBody.innerHTML = '';
+            
+            // Filtrar líneas vacías
+            const validLines = lines.filter(line => line.trim() !== '');
+            const participantCount = validLines.length;
+            
+            // Si no hay porcentajes específicos, calcular el porcentaje por participante
+            let equalPercentage = defaultPercentage;
+            if (participantCount > 0) {
+                equalPercentage = (defaultPercentage / participantCount).toFixed(2);
+            }
+            
+            validLines.forEach(line => {
+                const columns = line.split(',');
+                if (columns.length < 2) return; // Necesitamos al menos nombre y email
+                
+                const name = columns[0].trim();
+                const email = columns[1].trim();
+                const phone = columns.length > 2 ? columns[2].trim() : '';
+                
+                // Siempre usar el porcentaje calculado, ignorando el porcentaje del CSV
+                const percentage = equalPercentage;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${name}</td>
+                    <td>${email}</td>
+                    <td>${phone}</td>
+                    <td>${percentage}%</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-participant">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Añadir evento para eliminar participantes
+            document.querySelectorAll('.remove-participant').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('tr').remove();
+                    // Recalcular porcentajes si se elimina un participante
+                    recalculatePercentages();
+                });
+            });
+            
+            // Mostrar mensaje con el cálculo realizado
+            if (participantCount > 0) {
+                const totalAmount = document.getElementById('ticketAmount')?.value || 
+                                   document.getElementById('ticketAmountPrimitiva')?.value || 
+                                   document.getElementById('ticketAmountOnce')?.value || 
+                                   document.getElementById('ticketAmountOtro')?.value || '100';
+                
+                const amountPerParticipant = (parseFloat(totalAmount) * (equalPercentage / 100)).toFixed(2);
+                
+                alert(`Se han cargado ${participantCount} participantes. \nPorcentaje total: ${defaultPercentage}% \nPorcentaje por participante: ${equalPercentage}% \nImporte por participante: ${amountPerParticipant}€`);
+            }
+        }
+        
+        // Recalcular porcentajes cuando se elimina un participante
+        function recalculatePercentages() {
+            const tableBody = document.querySelector('#participantsList tbody');
+            const rows = tableBody.querySelectorAll('tr');
+            const participantCount = rows.length;
+            
+            if (participantCount === 0) return;
+            
+            const defaultPercentage = parseFloat(document.getElementById('defaultPercentage').value || 100);
+            const equalPercentage = (defaultPercentage / participantCount).toFixed(2);
+            
+            // Actualizar porcentajes en la tabla
+            rows.forEach(row => {
+                const percentageCell = row.cells[3];
+                percentageCell.textContent = `${equalPercentage}%`;
+            });
+        }
+        
+        // Manejar cambio de tipo de lotería
+        document.getElementById('lotteryTypeSelect').addEventListener('change', function() {
+            const selectedValue = this.value;
+            
+            // Ocultar todos los formularios
+            document.querySelectorAll('.lottery-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            // Mostrar el formulario correspondiente
+            if (['primitiva', 'bonoloto', 'euromillones', 'gordo'].includes(selectedValue)) {
+                document.getElementById('primitiva').style.display = 'block';
+                
+                // Mostrar u ocultar el campo de estrellas para Euromillones
+                if (selectedValue === 'euromillones') {
+                    document.getElementById('estrellas-container').style.display = 'block';
+                } else {
+                    document.getElementById('estrellas-container').style.display = 'none';
+                }
+            } else if (['cuponazo', 'extraordinario', 'diario', 'findesemana', 'eurojackpot'].includes(selectedValue)) {
+                document.getElementById('once').style.display = 'block';
+            } else if (selectedValue === 'otro') {
+                document.getElementById('otro').style.display = 'block';
+            } else {
+                // Lotería Nacional, Navidad, Niño
+                document.getElementById('loteriaNacional').style.display = 'block';
+            }
+        });
+        
+        // Vista previa del email
+        document.getElementById('previewBtn').addEventListener('click', function() {
+            previewEmail();
+        });
+        
+        // Función para previsualizar el email
+        function previewEmail() {
+            // Obtener los datos del formulario
+            const companyName = document.getElementById('companyName').value || 'Nombre de la Empresa';
+            const senderName = document.getElementById('senderName').value || 'Nombre del Remitente';
+            const senderEmail = document.getElementById('senderEmail').value || 'email@ejemplo.com';
+            
+            const selectElement = document.getElementById('lotteryTypeSelect');
+            const selectedValue = selectElement.value || 'nacional';
+            const lotteryDisplayName = selectElement.options[selectElement.selectedIndex]?.text || 'Lotería';
+            
+            // Obtener los datos del primer participante (si existe)
+            let participantName = 'Juan Pérez';
+            let participantPercentage = '20';
+            const participantsList = document.getElementById('participantsList');
+            if (participantsList && participantsList.rows.length > 0) {
+                const firstRow = participantsList.rows[0];
+                if (firstRow.cells.length >= 4) {
+                    participantName = firstRow.cells[0].textContent.trim();
+                    const percentageText = firstRow.cells[3].textContent;
+                    participantPercentage = percentageText.replace('%', '').trim();
+                }
+            }
+            
+            // Obtener los datos del juego según el tipo
+            let ticketNumber, ticketAmount, ticketFraction, ticketSeries, ticketStars, ticketDetails;
+            
+            if (['primitiva', 'bonoloto', 'euromillones', 'gordo'].includes(selectedValue)) {
+                ticketNumber = document.getElementById('ticketNumbers').value || '1, 5, 12, 23, 34, 45';
+                ticketAmount = document.getElementById('ticketAmountPrimitiva').value || '20';
+                ticketStars = selectedValue === 'euromillones' ? (document.getElementById('ticketStars').value || '2, 5') : '';
+            } else if (['cuponazo', 'extraordinario', 'diario', 'findesemana', 'eurojackpot'].includes(selectedValue)) {
+                ticketNumber = document.getElementById('ticketNumberOnce').value || '12345';
+                ticketAmount = document.getElementById('ticketAmountOnce').value || '20';
+                ticketSeries = document.getElementById('ticketSeriesOnce').value || '123';
+            } else if (selectedValue === 'otro') {
+                ticketNumber = document.getElementById('ticketNumberOtro').value || 'ABC-12345';
+                ticketAmount = document.getElementById('ticketAmountOtro').value || '20';
+                ticketDetails = document.getElementById('ticketDetails').value || 'Sorteo especial';
+            } else {
+                // Lotería Nacional, Navidad, Niño
+                ticketNumber = document.getElementById('ticketNumber').value || '12345';
+                ticketAmount = document.getElementById('ticketAmount').value || '20';
+                ticketFraction = document.getElementById('ticketFraction').value || '10';
+                ticketSeries = document.getElementById('ticketSeries').value || '123';
+            }
+            
+            // Obtener el asunto y cuerpo del email
+            const subject = document.getElementById('emailSubject').value
+                .replace('{remitente}', senderName)
+                .replace('{loteria}', lotteryDisplayName)
+                .replace('{empresa}', companyName);
+                
+            let body = document.getElementById('emailBody').value;
+            
+            // Reemplazar los marcadores de posición en el cuerpo del email
+            body = body.replace(/{nombre}/g, participantName)
+                       .replace(/{porcentaje}/g, participantPercentage)
+                       .replace(/{numero_decimo}/g, ticketNumber)
+                       .replace(/{importe}/g, ticketAmount)
+                       .replace(/{fraccion}/g, ticketFraction || '')
+                       .replace(/{serie}/g, ticketSeries || '')
+                       .replace(/{estrellas}/g, ticketStars || '')
+                       .replace(/{detalles}/g, ticketDetails || '')
+                       .replace(/{remitente}/g, senderName)
+                       .replace(/{email_remitente}/g, senderEmail)
+                       .replace(/{empresa}/g, companyName)
+                       .replace(/{loteria}/g, lotteryDisplayName);
+            
+            // Mostrar u ocultar las secciones específicas según el tipo de lotería
+            if (['primitiva', 'bonoloto', 'gordo'].includes(selectedValue)) {
+                body = body.replace('id="mensaje-loteria-nacional" class="mensaje-tipo-loteria"', 'id="mensaje-loteria-nacional" class="mensaje-tipo-loteria" style="display:none"');
+                body = body.replace('id="mensaje-primitiva" class="mensaje-tipo-loteria" style="display:none"', 'id="mensaje-primitiva" class="mensaje-tipo-loteria"');
+            } else if (selectedValue === 'euromillones') {
+                body = body.replace('id="mensaje-loteria-nacional" class="mensaje-tipo-loteria"', 'id="mensaje-loteria-nacional" class="mensaje-tipo-loteria" style="display:none"');
+                body = body.replace('id="mensaje-euromillones" class="mensaje-tipo-loteria" style="display:none"', 'id="mensaje-euromillones" class="mensaje-tipo-loteria"');
+            } else if (['cuponazo', 'extraordinario', 'diario', 'findesemana', 'eurojackpot'].includes(selectedValue)) {
+                body = body.replace('id="mensaje-loteria-nacional" class="mensaje-tipo-loteria"', 'id="mensaje-loteria-nacional" class="mensaje-tipo-loteria" style="display:none"');
+                body = body.replace('id="mensaje-once" class="mensaje-tipo-loteria" style="display:none"', 'id="mensaje-once" class="mensaje-tipo-loteria"');
+            } else if (selectedValue === 'otro') {
+                body = body.replace('id="mensaje-loteria-nacional" class="mensaje-tipo-loteria"', 'id="mensaje-loteria-nacional" class="mensaje-tipo-loteria" style="display:none"');
+                body = body.replace('id="mensaje-otro" class="mensaje-tipo-loteria" style="display:none"', 'id="mensaje-otro" class="mensaje-tipo-loteria"');
+            }
+            
+            // Crear el contenido de la previsualización
+            const previewContent = `
+                <strong>De:</strong> ${senderName} &lt;${senderEmail}&gt;<br>
+                <strong>Asunto:</strong> ${subject}<br>
+                <strong>Cuerpo:</strong><br>
+                ${body.replace(/\n/g, '<br>')}
+            `;
+            
+            // Mostrar la previsualización en el modal
+            document.getElementById('previewContent').innerHTML = previewContent;
+            
+            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            previewModal.show();
+        }
+        
+        // Envío del formulario
+        document.getElementById('empresaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const participantsList = document.querySelector('#participantsList tbody');
+            if (participantsList.children.length === 0) {
+                alert('Debes añadir al menos un participante.');
+                return;
+            }
+            
+            // Obtener datos de la empresa
+            const companyName = document.getElementById('companyName').value;
+            const companyCIF = document.getElementById('companyCIF').value;
+            if (!companyName || !companyCIF) {
+                alert('Debes ingresar el nombre y CIF de la empresa.');
+                return;
+            }
+            
+            // Obtener datos del remitente
+            const senderName = document.getElementById('senderName').value;
+            const senderEmail = document.getElementById('senderEmail').value;
+            if (!senderName || !senderEmail) {
+                alert('Debes ingresar el nombre y email del remitente.');
+                return;
+            }
+            
+            // Obtener datos del juego según el tipo seleccionado
+            const selectElement = document.getElementById('lotteryTypeSelect');
+            const lotteryType = selectElement.value;
+            const lotteryDisplayName = selectElement.options[selectElement.selectedIndex]?.text || 'Lotería';
+            
+            let ticketNumber, ticketAmount, ticketFraction, ticketSeries, ticketStars, ticketDetails;
+            
+            if (['primitiva', 'bonoloto', 'euromillones', 'gordo'].includes(lotteryType)) {
+                ticketNumber = document.getElementById('ticketNumbers').value;
+                ticketAmount = document.getElementById('ticketAmountPrimitiva').value;
+                ticketStars = lotteryType === 'euromillones' ? document.getElementById('ticketStars').value : '';
+                
+                if (!ticketNumber || !ticketAmount) {
+                    alert('Debes ingresar los números y el importe.');
+                    return;
+                }
+            } else if (['cuponazo', 'extraordinario', 'diario', 'findesemana', 'eurojackpot'].includes(lotteryType)) {
+                ticketNumber = document.getElementById('ticketNumberOnce').value;
+                ticketAmount = document.getElementById('ticketAmountOnce').value;
+                ticketSeries = document.getElementById('ticketSeriesOnce').value;
+                
+                if (!ticketNumber || !ticketAmount) {
+                    alert('Debes ingresar el número del cupón y el importe.');
+                    return;
+                }
+            } else if (lotteryType === 'otro') {
+                ticketNumber = document.getElementById('ticketNumberOtro').value;
+                ticketAmount = document.getElementById('ticketAmountOtro').value;
+                ticketDetails = document.getElementById('ticketDetails').value;
+                
+                if (!ticketNumber || !ticketAmount) {
+                    alert('Debes ingresar el identificador/número y el importe.');
+                    return;
+                }
+            } else {
+                // Lotería Nacional, Navidad, Niño
+                ticketNumber = document.getElementById('ticketNumber').value;
+                ticketAmount = document.getElementById('ticketAmount').value;
+                ticketFraction = document.getElementById('ticketFraction').value;
+                ticketSeries = document.getElementById('ticketSeries').value;
+                
+                if (!ticketNumber || !ticketAmount) {
+                    alert('Debes ingresar el número y el importe.');
+                    return;
+                }
+            }
+            
+            // Recopilar datos de los participantes
+            const participants = [];
+            const rows = participantsList.querySelectorAll('tr');
+            rows.forEach(row => {
+                const name = row.cells[0].textContent.trim();
+                const email = row.cells[1].textContent.trim();
+                const phone = row.cells[2].textContent.trim();
+                const percentage = row.cells[3].textContent.trim().replace('%', '');
+                
+                participants.push({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    percentage: percentage
+                });
+            });
+            
+            // Obtener datos del email
+            const emailSubject = document.getElementById('emailSubject').value;
+            const emailBody = document.getElementById('emailBody').value;
+            
+            // Preparar datos para enviar
+            const data = {
+                participants: participants,
+                lottery_data: {
+                    lottery_type: lotteryType,
+                    lottery_display_name: lotteryDisplayName,
+                    number: ticketNumber,
+                    amount: ticketAmount,
+                    fraction: ticketFraction || '',
+                    series: ticketSeries || '',
+                    stars: ticketStars || '',
+                    details: ticketDetails || ''
+                },
+                sender_data: {
+                    name: senderName,
+                    email: senderEmail
+                },
+                company: {
+                    name: companyName,
+                    cif: companyCIF,
+                    logo: window.companyLogoBase64 || null
+                },
+                email_subject: emailSubject,
+                email_body: emailBody
+            };
+            
+            // Mostrar mensaje de carga
+            const loadingMessage = document.createElement('div');
+            loadingMessage.className = 'alert alert-info';
+            loadingMessage.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando participaciones, por favor espera...';
+            document.querySelector('.action-buttons').prepend(loadingMessage);
+            
+            // Deshabilitar botón de envío
+            const sendButton = document.getElementById('sendEmailBtn');
+            sendButton.disabled = true;
+            
+            // Enviar datos al servidor
+            fetch('/send_email_empresas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Eliminar mensaje de carga
+                loadingMessage.remove();
+                
+                // Habilitar botón de envío
+                sendButton.disabled = false;
+                
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'alert alert-success';
+                    successMessage.innerHTML = `<i class="fas fa-check-circle me-2"></i>${data.message}`;
+                    document.querySelector('.action-buttons').prepend(successMessage);
+                    
+                    // Limpiar formulario después de 3 segundos
+                    setTimeout(() => {
+                        if (confirm('¿Deseas enviar más participaciones?')) {
+                            // Limpiar solo los participantes
+                            participantsList.innerHTML = '';
+                            document.getElementById('csvFile').value = '';
+                            document.getElementById('csvData').value = '';
+                            successMessage.remove();
+                        } else {
+                            // Limpiar todo el formulario
+                            document.getElementById('empresaForm').reset();
+                            participantsList.innerHTML = '';
+                            successMessage.remove();
+                        }
+                    }, 3000);
+                } else {
+                    // Mostrar mensaje de error
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'alert alert-danger';
+                    errorMessage.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>Error: ${data.error}`;
+                    document.querySelector('.action-buttons').prepend(errorMessage);
+                    
+                    // Eliminar mensaje de error después de 5 segundos
+                    setTimeout(() => {
+                        errorMessage.remove();
+                    }, 5000);
+                }
+            })
+            .catch(error => {
+                // Eliminar mensaje de carga
+                loadingMessage.remove();
+                
+                // Habilitar botón de envío
+                sendButton.disabled = false;
+                
+                // Mostrar mensaje de error
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'alert alert-danger';
+                errorMessage.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>Error: ${error.message}`;
+                document.querySelector('.action-buttons').prepend(errorMessage);
+                
+                // Eliminar mensaje de error después de 5 segundos
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 5000);
+            });
+        });
+    });
+
+    // Manejar la previsualización del logo
+    document.getElementById('companyLogo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const logoPreview = document.getElementById('logoPreview');
+                const logoPreviewImage = document.getElementById('logoPreviewImage');
+                logoPreviewImage.src = e.target.result;
+                logoPreview.style.display = 'block';
+                
+                // Guardar el logo en base64 para enviarlo al servidor
+                window.companyLogoBase64 = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Manejar el botón de limpiar logo
+    document.getElementById('clearLogoBtn').addEventListener('click', function() {
+        const logoInput = document.getElementById('companyLogo');
+        const logoPreview = document.getElementById('logoPreview');
+        logoInput.value = '';
+        logoPreview.style.display = 'none';
+        window.companyLogoBase64 = null;
+    });
+</script>
+{% endblock %}

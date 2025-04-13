@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Contacto - Gestor de participaciones de azar{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h1>
+            Contacto
+        </h1>
+        
+        <div class="alert alert-info mb-4">
+            <p class="mb-0"><i class="fas fa-info-circle me-2"></i>Utiliza este formulario para ponerte en contacto con nosotros si tienes alguna duda o sugerencia sobre el gestor de participaciones de azar.</p>
+        </div>
+
+        <form id="contactForm" class="needs-validation" novalidate>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="contactName" class="form-label small">
+                            <i class="fas fa-user me-1"></i>Nombre
+                        </label>
+                        <input type="text" class="form-control form-control-sm" id="contactName" required>
+                        <div class="invalid-feedback">
+                            Por favor, introduce tu nombre.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="contactEmail" class="form-label small">
+                            <i class="fas fa-envelope me-1"></i>Email
+                        </label>
+                        <input type="email" class="form-control form-control-sm" id="contactEmail" required>
+                        <div class="invalid-feedback">
+                            Por favor, introduce un email válido.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="contactSubject" class="form-label small">
+                    <i class="fas fa-heading me-1"></i>Asunto
+                </label>
+                <input type="text" class="form-control form-control-sm" id="contactSubject" required>
+                <div class="invalid-feedback">
+                    Por favor, introduce un asunto.
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="contactMessage" class="form-label small">
+                    <i class="fas fa-comment me-1"></i>Mensaje
+                </label>
+                <textarea class="form-control form-control-sm" id="contactMessage" rows="5" required></textarea>
+                <div class="invalid-feedback">
+                    Por favor, introduce tu mensaje.
+                </div>
+            </div>
+
+            <!-- reCAPTCHA v2 -->
+            <div class="form-group mb-3">
+                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                <div class="invalid-feedback" id="captchaFeedback" style="display: none;">
+                    Por favor, completa el captcha.
+                </div>
+            </div>
+
+            <!-- Aviso legal -->
+            <div class="form-group mb-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="legalCheck" required>
+                    <label class="form-check-label small" for="legalCheck">
+                        He leído y acepto el aviso legal y la política de privacidad
+                    </label>
+                    <div class="invalid-feedback">
+                        Debes aceptar el aviso legal y la política de privacidad.
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mb-4">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Aviso importante</h5>
+                <p>Esta aplicación es una prueba de concepto (POC) y tiene las siguientes características:</p>
+                <ul>
+                    <li>Los datos proporcionados se utilizan exclusivamente para el envío de correos electrónicos.</li>
+                    <li>No se almacena ninguna información personal de forma permanente en nuestros servidores.</li>
+                    <li>Los datos de participaciones se eliminan automáticamente después de 24 horas.</li>
+                    <li>Esta aplicación no tiene validez legal y es solo para fines demostrativos.</li>
+                    <li>No nos hacemos responsables del uso indebido de esta herramienta.</li>
+                </ul>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-1"></i>Enviar mensaje
+                </button>
+            </div>
+        </form>
+
+        <!-- Mensaje de éxito (oculto por defecto) -->
+        <div class="alert alert-success mt-4" id="successMessage" style="display: none;">
+            <i class="fas fa-check-circle me-2"></i>Tu mensaje ha sido enviado correctamente. Nos pondremos en contacto contigo lo antes posible.
+        </div>
+
+        <!-- Mensaje de error (oculto por defecto) -->
+        <div class="alert alert-danger mt-4" id="errorMessage" style="display: none;">
+            <i class="fas fa-exclamation-circle me-2"></i>Ha ocurrido un error al enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Script de reCAPTCHA -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('contactForm');
+        
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Validar el formulario
+            if (!form.checkValidity()) {
+                event.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
+            
+            // Validar reCAPTCHA
+            const captchaResponse = grecaptcha.getResponse();
+            if (!captchaResponse) {
+                document.getElementById('captchaFeedback').style.display = 'block';
+                return;
+            } else {
+                document.getElementById('captchaFeedback').style.display = 'none';
+            }
+            
+            // Recopilar datos del formulario
+            const contactName = document.getElementById('contactName').value;
+            const contactEmail = document.getElementById('contactEmail').value;
+            const contactSubject = document.getElementById('contactSubject').value;
+            const contactMessage = document.getElementById('contactMessage').value;
+            
+            // Preparar datos para enviar
+            const data = {
+                name: contactName,
+                email: contactEmail,
+                subject: contactSubject,
+                message: contactMessage,
+                captcha: captchaResponse
+            };
+            
+            // Mostrar indicador de carga
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Enviando...';
+            submitButton.disabled = true;
+            
+            // Enviar datos al servidor
+            fetch('/send_contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Restaurar botón
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
+                
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    document.getElementById('successMessage').style.display = 'block';
+                    // Ocultar formulario
+                    form.style.display = 'none';
+                    // Resetear formulario
+                    form.reset();
+                    form.classList.remove('was-validated');
+                    // Resetear captcha
+                    grecaptcha.reset();
+                } else {
+                    // Mostrar mensaje de error
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('errorMessage').textContent = data.error || 'Ha ocurrido un error al enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.';
+                    // Resetear captcha
+                    grecaptcha.reset();
+                    // Ocultar mensaje de error después de 5 segundos
+                    setTimeout(() => {
+                        document.getElementById('errorMessage').style.display = 'none';
+                    }, 5000);
+                }
+            })
+            .catch(error => {
+                // Restaurar botón
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
+                
+                // Mostrar mensaje de error
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorMessage').textContent = 'Error de conexión. Por favor, inténtalo de nuevo más tarde.';
+                // Resetear captcha
+                grecaptcha.reset();
+                // Ocultar mensaje de error después de 5 segundos
+                setTimeout(() => {
+                    document.getElementById('errorMessage').style.display = 'none';
+                }, 5000);
+            });
+        });
+    });
+</script>
+{% endblock %}

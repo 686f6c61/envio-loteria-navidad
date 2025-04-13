@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Ayuda - Gestor de participaciones de azar{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-question-circle me-2"></i>Ayuda y acerca de</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-info-circle me-2"></i>Acerca de este proyecto</h3>
+        <p class="card-text">
+            Esta aplicación web es un proyecto educativo desarrollado con fines de aprendizaje y demostración. 
+            No está destinada para uso en producción o para manejar datos reales de juegos de azar. Puede contener errores 
+            o imprecisiones y no debe ser utilizada para transacciones reales o manejo de información sensible.
+        </p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-cogs me-2"></i>Funcionamiento de la aplicación</h3>
+        <h4 class="mt-3 mb-2">Modo individual</h4>
+        <ol>
+            <li><strong>Selección de juego:</strong> Elige el tipo de juego de azar para la participación.</li>
+            <li><strong>Datos del remitente:</strong> Ingresa la información del organizador de la participación.</li>
+            <li><strong>Datos del boleto:</strong> Introduce los detalles del boleto o décimo según el tipo de juego.</li>
+            <li><strong>Añadir participantes:</strong> Agrega la información de cada participante y su porcentaje de participación.</li>
+            <li><strong>Envío de correos:</strong> Al finalizar, la aplicación enviará correos electrónicos a cada participante con su información de participación.</li>
+            <li><strong>Resumen:</strong> Se genera un resumen para el organizador con todos los detalles de la participación.</li>
+        </ol>
+        
+        <h4 class="mt-3 mb-2">Modo empresas</h4>
+        <ol>
+            <li><strong>Selección de juego:</strong> Elige el tipo de juego de azar para la participación.</li>
+            <li><strong>Datos de la empresa:</strong> Ingresa el nombre de la empresa y la persona responsable de la participación.</li>
+            <li><strong>Datos del boleto:</strong> Introduce los detalles del boleto o décimo según el tipo de juego.</li>
+            <li><strong>Porcentaje total:</strong> Establece el porcentaje total a repartir entre todos los participantes.</li>
+            <li><strong>Carga de participantes:</strong> Sube un archivo CSV con los datos de los participantes o pégalos directamente.</li>
+            <li><strong>Envío de correos:</strong> Al finalizar, la aplicación enviará correos electrónicos a todos los participantes con su información de participación.</li>
+        </ol>
+        
+        <h4 class="mt-3 mb-2">Formato del archivo CSV</h4>
+        <p>El archivo CSV para cargar participantes debe tener el siguiente formato:</p>
+        <pre class="bg-light p-2">Nombre, Email, Teléfono (opcional)</pre>
+        <p>Ejemplo:</p>
+        <pre class="bg-light p-2">Juan Pérez, juan.perez@ejemplo.com, 612345678
+María García, maria.garcia@ejemplo.com, 623456789</pre>
+        <p>Puedes <a href="/static/ejemplo_participantes.csv" download>descargar un archivo CSV de ejemplo</a> para ver el formato correcto.</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-database me-2"></i>Manejo de datos</h3>
+        <p class="card-text">
+            Esta aplicación no almacena permanentemente ningún dato ingresado por los usuarios. 
+            La información se utiliza únicamente para generar los PDFs y enviar los correos electrónicos. 
+            Una vez completado el proceso, los datos se eliminan de nuestros sistemas.
+        </p>
+        <p class="card-text">
+            Los datos de participaciones se eliminan automáticamente después de 24 horas. Los únicos datos 
+            que podrían quedar registrados son los logs del servidor de correo utilizados para el envío de emails, 
+            que están fuera de nuestro control directo.
+        </p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-exclamation-triangle me-2"></i>Descargo de responsabilidad</h3>
+        <p class="card-text">
+            Este es un proyecto educativo y no debe ser utilizado para manejar participaciones reales de juegos de azar 
+            o información financiera sensible. Los desarrolladores no se hacen responsables de cualquier uso 
+            indebido o consecuencias derivadas del uso de esta aplicación.
+        </p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title"><i class="fas fa-envelope me-2"></i>Contacto</h3>
+        <p class="card-text">
+            Para cualquier pregunta o comentario sobre este proyecto educativo, puedes utilizar nuestro 
+            <a href="{{ url_for('contacto') }}">
+                <i class="fas fa-envelope me-1"></i>formulario de contacto
+            </a>
+            y nos pondremos en contacto contigo lo antes posible.
+        </p>
+    </div>
+</div>
+{% endblock %}
